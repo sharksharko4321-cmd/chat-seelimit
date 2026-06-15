@@ -3,40 +3,41 @@ const app = express();
 
 app.use(express.json());
 
+// Array que guarda as mensagens
 let mensagens = [];
 
-// Rota GET - Buscar mensagens
+// ===================== ROTAS =====================
+
+// Buscar mensagens (GET)
 app.get('/chat', (req, res) => {
-    res.json(mensagens);
+    res.json(mensagens);   // ← Importante: sempre retornar JSON
 });
 
-// Rota POST - Enviar mensagem
+// Enviar mensagem (POST)
 app.post('/chat', (req, res) => {
     const { usuario, texto } = req.body;
-    
+
     if (!usuario || !texto) {
         return res.status(400).json({ erro: "Usuário e texto são obrigatórios" });
     }
 
-    const novaMensagem = {
+    mensagens.push({
         usuario: usuario,
         texto: texto,
         timestamp: Date.now()
-    };
+    });
 
-    mensagens.push(novaMensagem);
-
-    // Mantém apenas as últimas 50 mensagens
-    if (mensagens.length > 50) {
+    // Limita o histórico (máximo 30 mensagens)
+    if (mensagens.length > 30) {
         mensagens.shift();
     }
 
     res.status(201).json({ status: "ok" });
 });
 
-// Rota raiz (para teste)
+// Rota de teste
 app.get('/', (req, res) => {
-    res.send('Chat server is running! Use /chat');
+    res.send('Chat Server Online - Use /chat');
 });
 
 const PORT = process.env.PORT || 3000;
